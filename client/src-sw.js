@@ -26,5 +26,22 @@ warmStrategyCache({
 
 registerRoute(({ request }) => request.mode === "navigate", pageCache);
 
-// TODO: Implement asset caching
-registerRoute();
+// Implement caching for assets using StaleWhileRevalidate strategy
+registerRoute(
+  // Cache CSS, JavaScript, and image files with StaleWhileRevalidate strategy
+  ({ request }) =>
+    request.destination === "style" ||
+    request.destination === "script" ||
+    request.destination === "image",
+  new StaleWhileRevalidate({
+    cacheName: "assets-cache",
+    plugins: [
+      new CacheableResponsePlugin({
+        statuses: [0, 200],
+      }),
+    ],
+  })
+);
+
+// Additional code to handle offline fallback
+offlineFallback();
